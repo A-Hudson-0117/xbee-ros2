@@ -1,0 +1,10 @@
+# Python
+*.py[cod]
+__pycache__/
+dist/
+build/
+
+# Misc ignored items
+.DS_Store
+*.log
+*.tmp

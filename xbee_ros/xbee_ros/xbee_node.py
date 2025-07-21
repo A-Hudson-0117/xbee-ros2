@@ -22,24 +22,28 @@ class XBeeROSNode(Node):
         # Parameters
         self.declare_parameter('port', '/dev/ttyUSB0')
         self.declare_parameter('baud', 115200)
-        
         port = self.get_parameter('port').value
         baud = self.get_parameter('baud').value
-        
-        # XBee Setup
-        self.device = XBeeDevice(port, baud)
-        self.device.open()
-        self.device.add_data_received_callback(self.on_receive)
-        
-        self.remote_broadcast = RemoteXBeeDevice(self.device, BROADCAST_ADDR)
-        
-        self.get_logger().info(f"XBee opened on {port} @ {baud} baud.")
         
         # ROS interfaces # ROS interfaces
         self.recv_pub = self.create_publisher(String, 'xbee/recv', 10)
         self.send_sub = self.create_subscription(XBeeSend, 'xbee/send', self.on_send_request, 10)
         self.broadcast_sub = self.create_subscription(String, 'xbee/broadcast', self.on_broadcast_request, 10)
+        
+        # XBee Setup
+        self.device = XBeeDevice(port, baud)
+        self.device.open()
+        
+        # set remote broadcast
+        self.remote_broadcast = RemoteXBeeDevice(self.device, BROADCAST_ADDR)
+        
+        # set data recieve callback
+        self.device.add_data_received_callback(self.on_receive)
+        
+        self.get_logger().info(f"XBee opened on {port} @ {baud} baud.")
+        
     
+        
     def destroy_node(self):
         self.get_logger().info("Shutting down XBee node...")
         if self.device.is_open():
